@@ -30,25 +30,41 @@ class PlayerViewModel @Inject constructor(
     private val _song = MutableStateFlow<Song?>(null)
     val song: StateFlow<Song?> = _song.asStateFlow()
 
+    private var recentSongsList: List<Song> = emptyList()
+
     val playbackState: StateFlow<PlaybackState> = musicPlayer.playbackState
 
     init {
+        // Observe playback state to always show the currently playing song
+        viewModelScope.launch {
+            musicPlayer.playbackState.collectLatest { state ->
+                if (state.trackId != -1L) {
+                    songRepository.getSongById(state.trackId).collectLatest { loadedSong ->
+                        _song.value = loadedSong
+                    }
+                }
+            }
+        }
+
+        // Track recent songs for skip controls
+        viewModelScope.launch {
+            recentSongRepository.getRecentSongs().collectLatest { songs ->
+                recentSongsList = songs
+            }
+        }
+
+        // Play the requested track if passed from arguments
         if (trackId != -1L) {
             viewModelScope.launch {
                 recentSongRepository.markAsPlayed(trackId)
             }
-            viewModelScope.launch {
-                songRepository.getSongById(trackId).collectLatest { loadedSong ->
-                    _song.value = loadedSong
-                }
-            }
             if (previewUrl != null) {
-                play()
+                playInitial()
             }
         }
     }
 
-    fun play() {
+    private fun playInitial() {
         if (previewUrl != null) {
             musicPlayer.play(previewUrl, trackId)
         }
@@ -60,5 +76,43 @@ class PlayerViewModel @Inject constructor(
 
     fun resume() {
         musicPlayer.resume()
+    }
+
+    fun skipNext() {
+        val currentTrackId = playbackState.value.trackId
+        if (currentTrackId == -1L || recentSongsList.isEmpty()) return
+
+        val currentIndex = recentSongsList.indexOfFirst { it.trackId == currentTrackId }
+        if (currentIndex != -1 && currentIndex > 0) {
+            // Play the newer song in history
+            val nextSong = recentSongsList[currentIndex - 1]
+            musicPlayer.play(nextSong.previewUrl, nextSong.trackId)
+            viewModelScope.launch { recentSongRepository.markAsPlayed(nextSong.trackId) }
+        } else if (currentIndex == -1 && recentSongsList.isNotEmpty()) {
+            val nextSong = recentSongsList.first()
+            musicPlayer.play(nextSong.previewUrl, nextSong.trackId)
+            viewModelScope.launch { recentSongRepository.markAsPlayed(nextSong.trackId) }
+        }
+    }
+
+    fun skipPrevious() {
+        val currentTrackId = playbackState.value.trackId
+        if (currentTrackId == -1L || recentSongsList.isEmpty()) return
+
+        val currentIndex = recentSongsList.indexOfFirst { it.trackId == currentTrackId }
+        if (currentIndex != -1 && currentIndex < recentSongsList.lastIndex) {
+            // Play the older song in history
+            val prevSong = recentSongsList[currentIndex + 1]
+            musicPlayer.play(prevSong.previewUrl, prevSong.trackId)
+            viewModelScope.launch { recentSongRepository.markAsPlayed(prevSong.trackId) }
+        } else if (currentIndex == -1 && recentSongsList.isNotEmpty()) {
+            val prevSong = recentSongsList.first()
+            musicPlayer.play(prevSong.previewUrl, prevSong.trackId)
+            viewModelScope.launch { recentSongRepository.markAsPlayed(prevSong.trackId) }
+        }
+    }
+
+    fun toggleLoop() {
+        musicPlayer.toggleLoop()
     }
 }

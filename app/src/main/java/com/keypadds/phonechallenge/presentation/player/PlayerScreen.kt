@@ -2,6 +2,7 @@ package com.keypadds.phonechallenge.presentation.player
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,17 +12,18 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Repeat
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,20 +32,26 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.keypadds.phonechallenge.R
 import com.keypadds.phonechallenge.domain.model.Song
 import com.keypadds.phonechallenge.player.PlaybackState
+import com.keypadds.phonechallenge.presentation.songs.SongOptionsSheet
 import com.keypadds.phonechallenge.ui.theme.PhoneChallengeTheme
 import com.keypadds.phonechallenge.ui.theme.appColors
 
@@ -52,13 +60,18 @@ import com.keypadds.phonechallenge.ui.theme.appColors
 fun PlayerScreen(
     song: Song?,
     playbackState: PlaybackState,
+    isLooping: Boolean = false,
     onBack: () -> Unit,
     onPlay: () -> Unit,
     onPause: () -> Unit,
+    onSkipPrevious: () -> Unit,
+    onSkipNext: () -> Unit,
+    onToggleLoop: () -> Unit = {},
     onAlbumClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.appColors
+    var showOptionsSheet by remember { mutableStateOf(false) }
 
     val progress = if (playbackState.durationMs > 0)
         (playbackState.currentPositionMs.toFloat() / playbackState.durationMs).coerceIn(0f, 1f)
@@ -68,30 +81,42 @@ fun PlayerScreen(
         modifier = modifier
             .fillMaxSize()
             .background(colors.backgroundBlack)
-            .padding(horizontal = 24.dp)
     ) {
 
-        // Top bar — back arrow + "Now playing" title
+        // Top bar — back arrow + "Now playing" title + overflow menu
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .statusBarsPadding()
+                .padding(top = 20.dp, bottom = 8.dp, start = 0.dp, end = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = onBack) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // IconButton internal padding is 12dp. Offset by -5dp puts arrow at exactly 7dp from left edge.
+                IconButton(onClick = onBack, modifier = Modifier.offset(x = (-5).dp)) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Text(
+                    text = "Now playing",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.offset(x = (-5).dp)
+                )
+            }
+            
+            IconButton(onClick = { showOptionsSheet = true }) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More options",
                     tint = MaterialTheme.colorScheme.onBackground
                 )
             }
-            Text(
-                text = "Now playing",
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(start = 4.dp)
-            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -100,7 +125,7 @@ fun PlayerScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 32.dp)
                 .aspectRatio(1f)
                 .shadow(elevation = 32.dp, shape = RoundedCornerShape(16.dp))
                 .clip(RoundedCornerShape(16.dp))
@@ -124,7 +149,8 @@ fun PlayerScreen(
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 24.dp)
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
@@ -132,28 +158,43 @@ fun PlayerScreen(
             color = colors.textTertiary,
             fontSize = 15.sp,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 24.dp)
         )
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        // Progress bar (using Slider to get the thumb like in screenshot)
+        // Seekbar: 4dp track, 16dp handle, no gap
         Slider(
             value = progress,
             onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.onBackground,
                 activeTrackColor = MaterialTheme.colorScheme.onBackground,
                 inactiveTrackColor = colors.progressTrack
             ),
             thumb = {
-                SliderDefaults.Thumb(
-                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                    colors = SliderDefaults.colors(
-                        thumbColor = MaterialTheme.colorScheme.onBackground
-                    ),
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_player_handle),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(16.dp)
+                )
+            },
+            track = { sliderState ->
+                SliderDefaults.Track(
+                    sliderState = sliderState,
+                    modifier = Modifier.height(4.dp),
+                    colors = SliderDefaults.colors(
+                        activeTrackColor = MaterialTheme.colorScheme.onBackground,
+                        inactiveTrackColor = colors.progressTrack
+                    ),
+                    drawStopIndicator = {},
+                    thumbTrackGapSize = 0.dp,
+                    trackInsideCornerSize = 2.dp
                 )
             }
         )
@@ -162,6 +203,7 @@ fun PlayerScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 32.dp)
                 .padding(top = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -177,65 +219,94 @@ fun PlayerScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        // Playback controls
+        // Playback controls — play circle | [skip back · skip forward] | [spacer] | repeat
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Play / Pause primary button
+            // Play / Pause — large dark gray circle
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(72.dp)
                     .background(colors.surfaceLight, shape = CircleShape)
                     .clip(CircleShape)
-                    .clickable { if (playbackState.isPlaying) onPause() else onPlay() },
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { if (playbackState.isPlaying) onPause() else onPlay() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = if (playbackState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = if (playbackState.isPlaying) "Pause" else "Play",
                     tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(36.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(32.dp))
 
-            // Skip prev (decorative)
-            IconButton(onClick = {}) {
-                Icon(
-                    imageVector = Icons.Default.SkipPrevious,
-                    contentDescription = "Previous",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
+            // Skip back + Skip forward pair
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Skip back
+                IconButton(
+                    onClick = onSkipPrevious,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_player_skip_forward),
+                        contentDescription = "Previous",
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
 
-            // Skip next (decorative)
-            IconButton(onClick = {}) {
-                Icon(
-                    imageVector = Icons.Default.SkipNext,
-                    contentDescription = "Next",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(32.dp)
-                )
+                // Skip forward
+                IconButton(
+                    onClick = onSkipNext,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_player_skip_back),
+                        contentDescription = "Next",
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Loop / Repeat (decorative for visual completeness)
-            IconButton(onClick = {}) {
+            // Repeat / Loop — accent color when enabled
+            IconButton(onClick = onToggleLoop) {
                 Icon(
-                    imageVector = Icons.Default.Repeat,
+                    painter = painterResource(id = R.drawable.ic_player_repeat),
                     contentDescription = "Repeat",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(24.dp)
+                    tint = if (isLooping) MaterialTheme.colorScheme.primary
+                           else MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(28.dp)
                 )
             }
         }
+    }
+
+    if (showOptionsSheet && song != null) {
+        SongOptionsSheet(
+            song = song,
+            onDismissRequest = { showOptionsSheet = false },
+            onViewAlbumClick = {
+                showOptionsSheet = false
+                onAlbumClick()
+            }
+        )
     }
 }
 
@@ -266,6 +337,8 @@ private fun PlayerScreenPlayingPreview() {
             onBack = {},
             onPlay = {},
             onPause = {},
+            onSkipPrevious = {},
+            onSkipNext = {},
             onAlbumClick = {}
         )
     }
@@ -281,6 +354,8 @@ private fun PlayerScreenPausedPreview() {
             onBack = {},
             onPlay = {},
             onPause = {},
+            onSkipPrevious = {},
+            onSkipNext = {},
             onAlbumClick = {}
         )
     }
@@ -296,6 +371,8 @@ private fun PlayerScreenLoadingPreview() {
             onBack = {},
             onPlay = {},
             onPause = {},
+            onSkipPrevious = {},
+            onSkipNext = {},
             onAlbumClick = {}
         )
     }

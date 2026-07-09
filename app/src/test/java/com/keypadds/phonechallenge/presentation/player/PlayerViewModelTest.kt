@@ -36,6 +36,9 @@ class PlayerViewModelTest {
     private lateinit var savedStateHandle: SavedStateHandle
 
     private val testSong = Song(1L, 10L, "jack", "Upside Down", "Jack Johnson", "http://preview.com", "", 1, 1000L)
+    private val testSong2 = Song(2L, 10L, "jack", "Banana Pancakes", "Jack Johnson", "url2", "", 2, 1000L)
+    private val testSong3 = Song(3L, 10L, "jack", "Better Together", "Jack Johnson", "url3", "", 3, 1000L)
+    private val recentSongs = listOf(testSong3, testSong2, testSong)
 
     @Before
     fun setup() {
@@ -45,8 +48,9 @@ class PlayerViewModelTest {
         songRepository = mockk(relaxed = true)
         savedStateHandle = SavedStateHandle(mapOf("trackId" to 1L, "previewUrl" to "http://preview.com"))
         
-        every { musicPlayer.playbackState } returns MutableStateFlow(PlaybackState())
+        every { musicPlayer.playbackState } returns MutableStateFlow(PlaybackState(trackId = 1L))
         every { songRepository.getSongById(1L) } returns flowOf(testSong)
+        every { recentSongRepository.getRecentSongs() } returns flowOf(recentSongs)
     }
 
     @After
@@ -60,18 +64,11 @@ class PlayerViewModelTest {
         advanceUntilIdle()
 
         coVerify { recentSongRepository.markAsPlayed(1L) }
+        verify { musicPlayer.play("http://preview.com", 1L) }
         assertEquals(testSong, viewModel.song.value)
     }
 
-    @Test
-    fun play_triggers_music_player_with_correct_url() = runTest(testDispatcher) {
-        val viewModel = PlayerViewModel(musicPlayer, recentSongRepository, songRepository, savedStateHandle)
-        advanceUntilIdle()
 
-        viewModel.play()
-
-        verify { musicPlayer.play("http://preview.com", 1L) }
-    }
 
     @Test
     fun pause_delegates_to_music_player() = runTest(testDispatcher) {
@@ -92,6 +89,15 @@ class PlayerViewModelTest {
     }
 
     @Test
+    fun toggleLoop_delegates_to_music_player() = runTest(testDispatcher) {
+        val viewModel = PlayerViewModel(musicPlayer, recentSongRepository, songRepository, savedStateHandle)
+        
+        viewModel.toggleLoop()
+
+        verify { musicPlayer.toggleLoop() }
+    }
+
+    @Test
     fun playback_state_reflects_music_player_state() = runTest(testDispatcher) {
         val stateFlow = MutableStateFlow(PlaybackState())
         every { musicPlayer.playbackState } returns stateFlow
@@ -104,5 +110,33 @@ class PlayerViewModelTest {
             stateFlow.value = PlaybackState(trackId = 1L, isPlaying = true)
             assertEquals(PlaybackState(trackId = 1L, isPlaying = true), awaitItem())
         }
+    }
+
+    @Test
+    fun skipNext_plays_newer_song_in_history() = runTest(testDispatcher) {
+        every { musicPlayer.playbackState } returns MutableStateFlow(PlaybackState(trackId = 2L)) // testSong2 (index 1)
+        val viewModel = PlayerViewModel(musicPlayer, recentSongRepository, songRepository, savedStateHandle)
+        advanceUntilIdle()
+
+        viewModel.skipNext()
+        advanceUntilIdle()
+
+        // Index 1 minus 1 = 0 (testSong3)
+        verify { musicPlayer.play("url3", 3L) }
+        coVerify { recentSongRepository.markAsPlayed(3L) }
+    }
+
+    @Test
+    fun skipPrevious_plays_older_song_in_history() = runTest(testDispatcher) {
+        every { musicPlayer.playbackState } returns MutableStateFlow(PlaybackState(trackId = 2L)) // testSong2 (index 1)
+        val viewModel = PlayerViewModel(musicPlayer, recentSongRepository, songRepository, savedStateHandle)
+        advanceUntilIdle()
+
+        viewModel.skipPrevious()
+        advanceUntilIdle()
+
+        // Index 1 plus 1 = 2 (testSong)
+        verify { musicPlayer.play("http://preview.com", 1L) }
+        coVerify { recentSongRepository.markAsPlayed(1L) }
     }
 }

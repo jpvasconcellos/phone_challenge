@@ -34,8 +34,12 @@ class PlayerFragment : Fragment() {
                     song = song,
                     playbackState = playbackState,
                     onBack = { findNavController().popBackStack() },
-                    onPlay = { viewModel.play() },
+                    onPlay = { viewModel.resume() },
                     onPause = { viewModel.pause() },
+                    onSkipPrevious = { viewModel.skipPrevious() },
+                    onSkipNext = { viewModel.skipNext() },
+                    isLooping = playbackState.isLooping,
+                    onToggleLoop = { viewModel.toggleLoop() },
                     onAlbumClick = {
                         song?.collectionId?.let { collectionId ->
                             val action = PlayerFragmentDirections
