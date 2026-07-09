@@ -5,4 +5,8 @@
         <inset android:drawable="@drawable/ic_splash_logo"
                android:inset="24dp" />
     </foreground>
+    <monochrome>
+        <inset android:drawable="@drawable/ic_splash_logo"
+               android:inset="24dp" />
+    </monochrome>
 </adaptive-icon>

@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
 
         super.onCreate(savedInstanceState)
 
@@ -21,7 +21,6 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        // NavController is available for future use (e.g. bottom nav wiring)
         navHostFragment.navController
     }
 }
