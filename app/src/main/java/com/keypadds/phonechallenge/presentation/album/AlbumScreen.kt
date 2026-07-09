@@ -87,7 +87,6 @@ fun AlbumScreen(
                         SongListItem(
                             song = song,
                             onClick = { onSongClick(song) },
-                            onArtworkClick = { /* No-op in album screen */ }
                         )
                         if (index < songs.lastIndex) {
                             HorizontalDivider(

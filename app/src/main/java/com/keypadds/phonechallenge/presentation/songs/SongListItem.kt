@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +36,7 @@ fun SongListItem(
     song: Song,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onArtworkClick: (() -> Unit)? = null
+    onOptionsClick: (() -> Unit)? = null
 ) {
     val colors = MaterialTheme.appColors
 
@@ -52,10 +56,6 @@ fun SongListItem(
                 .size(52.dp)
                 .clip(RoundedCornerShape(6.dp))
                 .background(colors.surfaceLight)
-                .then(
-                    if (onArtworkClick != null) Modifier.clickable(onClick = onArtworkClick)
-                    else Modifier
-                )
         )
 
         Spacer(modifier = Modifier.width(14.dp))
@@ -81,6 +81,16 @@ fun SongListItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+
+        if (onOptionsClick != null) {
+            IconButton(onClick = onOptionsClick) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Options",
+                    tint = colors.iconGrey
+                )
+            }
         }
     }
 }

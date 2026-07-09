@@ -35,9 +35,21 @@ class PlayerFragment : Fragment() {
                     playbackState = playbackState,
                     onBack = { findNavController().popBackStack() },
                     onPlay = { viewModel.play() },
-                    onPause = { viewModel.pause() }
+                    onPause = { viewModel.pause() },
+                    onAlbumClick = {
+                        song?.collectionId?.let { collectionId ->
+                            val action = PlayerFragmentDirections
+                                .actionPlayerToAlbum(collectionId)
+                            findNavController().navigate(action)
+                        }
+                    }
                 )
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.resume()
     }
 }

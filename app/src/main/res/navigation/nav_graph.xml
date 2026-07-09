@@ -41,6 +41,9 @@
         <argument
             android:name="previewUrl"
             app:argType="string" />
+        <action
+            android:id="@+id/action_player_to_album"
+            app:destination="@id/albumFragment" />
     </fragment>
 
     <fragment

@@ -53,11 +53,12 @@ import com.keypadds.phonechallenge.ui.theme.appColors
 @Composable
 fun SongsScreen(
     songs: List<Song>,
+    recentSongs: List<Song>,
     isLoading: Boolean,
     error: String?,
     onSearch: (String) -> Unit,
     onSongClick: (Song) -> Unit,
-    onAlbumClick: (Song) -> Unit,
+    onOptionsClick: (Song) -> Unit,
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -92,7 +93,10 @@ fun SongsScreen(
             // Search bar
             OutlinedTextField(
                 value = query,
-                onValueChange = { query = it },
+                onValueChange = { 
+                    query = it 
+                    onSearch(it)
+                },
                 placeholder = {
                     Text("Search", color = colors.iconGrey)
                 },
@@ -117,7 +121,6 @@ fun SongsScreen(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = {
                     focusManager.clearFocus()
-                    onSearch(query)
                 }),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -126,6 +129,8 @@ fun SongsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            val displaySongs = if (query.isBlank()) recentSongs else songs
+
             // Song list
             LazyColumn(
                 modifier = Modifier
@@ -133,13 +138,13 @@ fun SongsScreen(
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                itemsIndexed(songs, key = { _, song -> song.trackId }) { index, song ->
+                itemsIndexed(displaySongs, key = { _, song -> song.trackId }) { index, song ->
                     SongListItem(
                         song = song,
                         onClick = { onSongClick(song) },
-                        onArtworkClick = { onAlbumClick(song) }
+                        onOptionsClick = { onOptionsClick(song) }
                     )
-                    if (index < songs.lastIndex) {
+                    if (index < displaySongs.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.padding(start = 82.dp),
                             thickness = 0.5.dp,
@@ -148,8 +153,8 @@ fun SongsScreen(
                     }
                 }
 
-                // Load more button at bottom
-                if (songs.isNotEmpty()) {
+                // Load more button at bottom (only for search results)
+                if (query.isNotBlank() && displaySongs.isNotEmpty()) {
                     item {
                         Box(
                             modifier = Modifier
@@ -214,11 +219,12 @@ private fun SongsScreenPopulatedPreview() {
     PhoneChallengeTheme {
         SongsScreen(
             songs = previewSongs,
+            recentSongs = emptyList(),
             isLoading = false,
             error = null,
             onSearch = {},
             onSongClick = {},
-            onAlbumClick = {},
+            onOptionsClick = {},
             onLoadMore = {}
         )
     }
@@ -230,11 +236,12 @@ private fun SongsScreenLoadingPreview() {
     PhoneChallengeTheme {
         SongsScreen(
             songs = emptyList(),
+            recentSongs = emptyList(),
             isLoading = true,
             error = null,
             onSearch = {},
             onSongClick = {},
-            onAlbumClick = {},
+            onOptionsClick = {},
             onLoadMore = {}
         )
     }
@@ -246,11 +253,12 @@ private fun SongsScreenErrorPreview() {
     PhoneChallengeTheme {
         SongsScreen(
             songs = previewSongs,
+            recentSongs = emptyList(),
             isLoading = false,
             error = "Network error. Showing cached results.",
             onSearch = {},
             onSongClick = {},
-            onAlbumClick = {},
+            onOptionsClick = {},
             onLoadMore = {}
         )
     }

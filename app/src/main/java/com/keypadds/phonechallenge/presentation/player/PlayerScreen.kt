@@ -1,6 +1,7 @@
 package com.keypadds.phonechallenge.presentation.player
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,19 +19,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,6 +47,7 @@ import com.keypadds.phonechallenge.player.PlaybackState
 import com.keypadds.phonechallenge.ui.theme.PhoneChallengeTheme
 import com.keypadds.phonechallenge.ui.theme.appColors
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
     song: Song?,
@@ -50,6 +55,7 @@ fun PlayerScreen(
     onBack: () -> Unit,
     onPlay: () -> Unit,
     onPause: () -> Unit,
+    onAlbumClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.appColors
@@ -99,6 +105,7 @@ fun PlayerScreen(
                 .shadow(elevation = 32.dp, shape = RoundedCornerShape(16.dp))
                 .clip(RoundedCornerShape(16.dp))
                 .background(colors.surface)
+                .clickable(enabled = song != null) { onAlbumClick() }
         ) {
             AsyncImage(
                 model = song?.artworkUrl,
@@ -130,24 +137,32 @@ fun PlayerScreen(
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        // Progress bar
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-                .clip(RoundedCornerShape(50)),
-            color = MaterialTheme.colorScheme.onBackground,
-            trackColor = colors.progressTrack,
-            strokeCap = StrokeCap.Round,
-            drawStopIndicator = {}
+        // Progress bar (using Slider to get the thumb like in screenshot)
+        Slider(
+            value = progress,
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth(),
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colorScheme.onBackground,
+                activeTrackColor = MaterialTheme.colorScheme.onBackground,
+                inactiveTrackColor = colors.progressTrack
+            ),
+            thumb = {
+                SliderDefaults.Thumb(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         )
 
         // Time labels
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(top = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -174,24 +189,22 @@ fun PlayerScreen(
             Box(
                 modifier = Modifier
                     .size(64.dp)
-                    .background(MaterialTheme.colorScheme.onBackground, shape = CircleShape),
+                    .background(colors.surfaceLight, shape = CircleShape)
+                    .clip(CircleShape)
+                    .clickable { if (playbackState.isPlaying) onPause() else onPlay() },
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(
-                    onClick = { if (playbackState.isPlaying) onPause() else onPlay() }
-                ) {
-                    Icon(
-                        imageVector = if (playbackState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (playbackState.isPlaying) "Pause" else "Play",
-                        tint = colors.backgroundBlack,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+                Icon(
+                    imageVector = if (playbackState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    contentDescription = if (playbackState.isPlaying) "Pause" else "Play",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(32.dp)
+                )
             }
 
             Spacer(modifier = Modifier.size(24.dp))
 
-            // Skip prev (decorative – no multi-track support per PRD)
+            // Skip prev (decorative)
             IconButton(onClick = {}) {
                 Icon(
                     imageVector = Icons.Default.SkipPrevious,
@@ -208,6 +221,18 @@ fun PlayerScreen(
                     contentDescription = "Next",
                     tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(32.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Loop / Repeat (decorative for visual completeness)
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Default.Repeat,
+                    contentDescription = "Repeat",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
@@ -240,7 +265,8 @@ private fun PlayerScreenPlayingPreview() {
             playbackState = PlaybackState(trackId = 1L, isPlaying = true, currentPositionMs = 86_000L, durationMs = 174_000L),
             onBack = {},
             onPlay = {},
-            onPause = {}
+            onPause = {},
+            onAlbumClick = {}
         )
     }
 }
@@ -254,7 +280,8 @@ private fun PlayerScreenPausedPreview() {
             playbackState = PlaybackState(trackId = 1L, isPlaying = false, currentPositionMs = 20_000L, durationMs = 174_000L),
             onBack = {},
             onPlay = {},
-            onPause = {}
+            onPause = {},
+            onAlbumClick = {}
         )
     }
 }
@@ -268,7 +295,8 @@ private fun PlayerScreenLoadingPreview() {
             playbackState = PlaybackState(),
             onBack = {},
             onPlay = {},
-            onPause = {}
+            onPause = {},
+            onAlbumClick = {}
         )
     }
 }
