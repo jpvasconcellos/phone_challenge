@@ -11,8 +11,8 @@
                 android:type="linear"
                 android:startX="0"
                 android:startY="108"
-                android:endX="200"
-                android:endY="-100">
+                android:endX="108"
+                android:endY="0">
                 <item android:color="#000000" android:offset="0.3357" />
                 <item android:color="#0086A0" android:offset="1.0" />
             </gradient>

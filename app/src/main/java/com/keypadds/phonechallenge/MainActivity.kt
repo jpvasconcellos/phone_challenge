@@ -11,16 +11,10 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var keepSplash = true
-
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
 
         super.onCreate(savedInstanceState)
-
-        // Keep the splash visible for 1.5 s
-        splashScreen.setKeepOnScreenCondition { keepSplash }
-        window.decorView.postDelayed({ keepSplash = false }, 1500)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

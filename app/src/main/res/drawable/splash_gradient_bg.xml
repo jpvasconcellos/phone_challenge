@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="432dp"
+    android:height="432dp"
+    android:viewportWidth="432"
+    android:viewportHeight="432">
+    <!--
+        Gradient direction: 39.45deg → black at bottom-left, teal at top-right.
+        In a 432x432 viewport:
+          startX=0,   startY=432  (bottom-left)
+          endX=432,   endY=0      (top-right)
+    -->
+    <path android:pathData="M0,0h432v432h-432z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="432"
+                android:endX="432"
+                android:endY="0">
+                <item android:color="#FF000000" android:offset="0.3357" />
+                <item android:color="#FF0086A0" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
