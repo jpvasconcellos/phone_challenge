@@ -36,6 +36,12 @@ class SongRepositoryImpl(
         }
     }
 
+    override fun getAlbumSongs(collectionId: Long): Flow<List<Song>> {
+        return dao.getSongsByCollectionId(collectionId).map { entities ->
+            entities.map { it.toDomainModel() }
+        }
+    }
+
     override suspend fun loadNextPage(query: String) {
         mutex.withLock {
             if (isLoading || currentQuery != query) return

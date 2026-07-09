@@ -14,13 +14,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SongRepositoryImplTest {
@@ -109,7 +109,7 @@ class SongRepositoryImplTest {
 
         // Now mock the API to delay so we can simulate concurrent loadNextPage calls
         coEvery { apiService.search(term = "jack", offset = 0) } coAnswers {
-            kotlinx.coroutines.delay(100)
+            kotlinx.coroutines.delay(100.milliseconds)
             ItunesResponseDto(0, emptyList())
         }
         
