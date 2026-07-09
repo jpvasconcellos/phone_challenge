@@ -38,6 +38,25 @@ class SongRepositoryImpl @Inject constructor(
     }
 
     override fun getAlbumSongs(collectionId: Long): Flow<List<Song>> {
+        // Trigger network refresh for the album in background
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = apiService.lookupAlbumSongs(collectionId = collectionId)
+                val currentTime = System.currentTimeMillis()
+                val entities = response.results
+                    .filter { it.kind == "song" }
+                    .mapIndexed { index, dto -> 
+                        // Use a dummy query to satisfy the schema, or rely on collectionId filtering
+                        dto.toSongEntity(query = "album-$collectionId", lastFetched = currentTime, index = index) 
+                    }
+                if (entities.isNotEmpty()) {
+                    dao.insertSongs(entities)
+                }
+            } catch (_: Exception) {
+                // Ignore network failure, let Flow emit whatever is cached
+            }
+        }
+
         return dao.getSongsByCollectionId(collectionId).map { entities ->
             entities.map { it.toDomainModel() }
         }
@@ -54,15 +73,24 @@ class SongRepositoryImpl @Inject constructor(
         }
 
         try {
-            val response = apiService.search(term = query, offset = currentOffset)
+            val newLimit = currentOffset + 20
+            val response = apiService.search(term = query, limit = newLimit)
             val currentTime = System.currentTimeMillis()
-            val entities = response.results.map { it.toSongEntity(query, currentTime) }
-
-            if (entities.isNotEmpty()) {
-                dao.insertSongs(entities)
-                mutex.withLock {
-                    currentOffset += entities.size
+            
+            val existingIds = dao.getTrackIdsByQuery(query).toSet()
+            val newEntities = response.results
+                .filter { it.trackId != null && !existingIds.contains(it.trackId) }
+                .mapIndexed { index, dto -> 
+                    dto.toSongEntity(query, currentTime, index) 
                 }
+
+            if (newEntities.isNotEmpty()) {
+                dao.insertSongs(newEntities)
+            }
+            
+            mutex.withLock {
+                // Update offset to the actual limit returned
+                currentOffset = response.results.size
             }
         } catch (_: Exception) {
             // Error handled gracefully, cached data remains untouched
@@ -82,16 +110,19 @@ class SongRepositoryImpl @Inject constructor(
         }
 
         try {
-            val response = apiService.search(term = query, offset = 0)
+            val response = apiService.search(term = query, limit = 20)
             val currentTime = System.currentTimeMillis()
-            val entities = response.results.map { it.toSongEntity(query, currentTime) }
+            val entities = response.results.mapIndexed { index, it -> 
+                it.toSongEntity(query, currentTime, index) 
+            }
 
-            // Delete old cache and insert new results on successful network call
-            dao.deleteSongsByQuery(query)
+            // Clear old search cache when starting a new search
+            dao.clearSearchCache()
+            
             if (entities.isNotEmpty()) {
                 dao.insertSongs(entities)
                 mutex.withLock {
-                    currentOffset = entities.size
+                    currentOffset = response.results.size
                 }
             } else {
                 mutex.withLock {
@@ -105,5 +136,9 @@ class SongRepositoryImpl @Inject constructor(
                 isLoading = false
             }
         }
+    }
+
+    override suspend fun clearSearchCache() {
+        dao.clearSearchCache()
     }
 }

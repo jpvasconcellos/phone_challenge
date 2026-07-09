@@ -13,5 +13,6 @@ data class TrackDto(
     @param:Json(name = "previewUrl") val previewUrl: String?,
     @param:Json(name = "artworkUrl100") val artworkUrl100: String?,
     @param:Json(name = "trackNumber") val trackNumber: Int?,
-    @param:Json(name = "wrapperType") val wrapperType: String?
+    @param:Json(name = "wrapperType") val wrapperType: String?,
+    @param:Json(name = "kind") val kind: String?
 )

@@ -3,7 +3,7 @@ package com.keypadds.phonechallenge.data.remote.mapper
 import com.keypadds.phonechallenge.data.local.SongEntity
 import com.keypadds.phonechallenge.data.remote.dto.TrackDto
 
-fun TrackDto.toSongEntity(query: String, lastFetched: Long): SongEntity {
+fun TrackDto.toSongEntity(query: String, lastFetched: Long, index: Int = 0): SongEntity {
     return SongEntity(
         trackId = trackId ?: 0L,
         collectionId = collectionId ?: 0L,
@@ -14,6 +14,6 @@ fun TrackDto.toSongEntity(query: String, lastFetched: Long): SongEntity {
         previewUrl = previewUrl ?: "",
         artworkUrl = artworkUrl100 ?: "",
         trackNumber = trackNumber ?: 0,
-        lastFetched = lastFetched
+        lastFetched = lastFetched + index
     )
 }

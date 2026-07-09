@@ -76,4 +76,12 @@ class SongsViewModel @Inject constructor(
             }
         }
     }
+
+    fun clearSearchCache() {
+        viewModelScope.launch {
+            songRepository.clearSearchCache()
+            _songs.value = emptyList()
+            currentQuery = ""
+        }
+    }
 }

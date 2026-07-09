@@ -62,4 +62,10 @@ interface SongRepository {
      * @param query The search term to refresh.
      */
     suspend fun refreshSearch(query: String)
+
+    /**
+     * Clears the local cache of search results.
+     * This removes all songs that are not part of an album or recent songs.
+     */
+    suspend fun clearSearchCache()
 }

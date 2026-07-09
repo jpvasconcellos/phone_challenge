@@ -8,8 +8,13 @@ interface ItunesApiService {
     @GET("search")
     suspend fun search(
         @Query("term") term: String,
-        @Query("media") media: String = "music",
-        @Query("limit") limit: Int = 20,
-        @Query("offset") offset: Int = 0
+        @Query("entity") entity: String = "song",
+        @Query("limit") limit: Int = 20
+    ): ItunesResponseDto
+
+    @GET("lookup")
+    suspend fun lookupAlbumSongs(
+        @Query("id") collectionId: Long,
+        @Query("entity") entity: String = "song"
     ): ItunesResponseDto
 }

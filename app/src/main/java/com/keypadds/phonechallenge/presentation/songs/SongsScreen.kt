@@ -82,6 +82,8 @@ fun SongsScreen(
             .fillMaxSize()
             .background(colors.backgroundDark)
     ) {
+        val displaySongs = if (query.isBlank()) recentSongs else songs
+
         Column(modifier = Modifier.fillMaxSize()) {
 
             // Title
@@ -138,8 +140,6 @@ fun SongsScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            val displaySongs = if (query.isBlank()) recentSongs else songs
-
             if (displaySongs.isEmpty() && !isLoading) {
                 if (error != null) {
                     Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -171,7 +171,9 @@ fun SongsScreen(
                 }
             } else {
                 // Song list
+                val listState = androidx.compose.foundation.lazy.rememberLazyListState()
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),
@@ -190,27 +192,28 @@ fun SongsScreen(
                                 color = colors.divider
                             )
                         }
+                        // Infinite scroll trigger
+                        if (query.isNotBlank() && index >= displaySongs.lastIndex - 3) {
+                            LaunchedEffect(query, displaySongs.size) {
+                                onLoadMore()
+                            }
+                        }
                     }
 
-                    // Load more button at bottom (only for search results)
-                    if (query.isNotBlank() && displaySongs.isNotEmpty()) {
-                        item {
+                    // Loading indicator at bottom for pagination
+                    if (query.isNotBlank() && displaySongs.isNotEmpty() && isLoading) {
+                        item(key = "pagination_loading") {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Button(
-                                    onClick = onLoadMore,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = colors.surface,
-                                        contentColor = MaterialTheme.colorScheme.onSurface
-                                    ),
-                                    shape = RoundedCornerShape(8.dp)
-                                ) {
-                                    Text("Load more")
-                                }
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(32.dp),
+                                    color = colors.accent,
+                                    strokeWidth = 2.dp
+                                )
                             }
                         }
                     }
@@ -218,8 +221,8 @@ fun SongsScreen(
             }
         }
 
-        // Loading indicator
-        if (isLoading) {
+        // Loading indicator for initial search
+        if (isLoading && displaySongs.isEmpty()) {
             CircularProgressIndicator(
                 modifier = Modifier
                     .size(48.dp)

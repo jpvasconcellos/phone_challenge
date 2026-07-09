@@ -11,11 +11,25 @@ interface SongDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSongs(songs: List<SongEntity>)
 
-    @Query("SELECT * FROM songs WHERE `query` = :query ORDER BY trackNumber ASC")
+    @Query("SELECT * FROM songs WHERE `query` = :query ORDER BY lastFetched ASC")
     fun getSongsByQuery(query: String): Flow<List<SongEntity>>
 
     @Query("DELETE FROM songs WHERE `query` = :query")
     suspend fun deleteSongsByQuery(query: String)
+
+    @androidx.room.Transaction
+    suspend fun replaceSongsForQuery(query: String, songs: List<SongEntity>) {
+        deleteSongsByQuery(query)
+        if (songs.isNotEmpty()) {
+            insertSongs(songs)
+        }
+    }
+
+    @Query("SELECT trackId FROM songs WHERE `query` = :query")
+    suspend fun getTrackIdsByQuery(query: String): List<Long>
+
+    @Query("DELETE FROM songs WHERE `query` != '' AND `query` NOT LIKE 'album-%' AND trackId NOT IN (SELECT trackId FROM recent_songs)")
+    suspend fun clearSearchCache()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecentSong(recentSong: RecentSongEntity)
