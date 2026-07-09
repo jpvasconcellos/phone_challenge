@@ -43,6 +43,10 @@ class SongRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getSongById(trackId: Long): Flow<Song?> {
+        return dao.getSongById(trackId).map { it?.toDomainModel() }
+    }
+
     override suspend fun loadNextPage(query: String) {
         mutex.withLock {
             if (isLoading || currentQuery != query) return

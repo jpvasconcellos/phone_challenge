@@ -29,4 +29,7 @@ interface SongDao {
 
     @Query("SELECT * FROM songs WHERE collectionId = :collectionId ORDER BY trackNumber ASC")
     fun getSongsByCollectionId(collectionId: Long): Flow<List<SongEntity>>
+
+    @Query("SELECT * FROM songs WHERE trackId = :trackId LIMIT 1")
+    fun getSongById(trackId: Long): Flow<SongEntity?>
 }
