@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.keypadds.phonechallenge.presentation.splash.SplashFragment"
+        android:label="Splash"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splash_to_songs"
+            app:destination="@id/songsFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/songsFragment"
+        android:name="com.keypadds.phonechallenge.presentation.songs.SongsFragment"
+        android:label="Songs"
+        tools:layout="@layout/fragment_songs">
+        <action
+            android:id="@+id/action_songs_to_player"
+            app:destination="@id/playerFragment" />
+        <action
+            android:id="@+id/action_songs_to_album"
+            app:destination="@id/albumFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.keypadds.phonechallenge.presentation.player.PlayerFragment"
+        android:label="Player"
+        tools:layout="@layout/fragment_player">
+        <argument
+            android:name="trackId"
+            app:argType="long" />
+        <argument
+            android:name="previewUrl"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/albumFragment"
+        android:name="com.keypadds.phonechallenge.presentation.album.AlbumFragment"
+        android:label="Album"
+        tools:layout="@layout/fragment_album">
+        <argument
+            android:name="collectionId"
+            app:argType="long" />
+    </fragment>
+
+</navigation>
