@@ -31,6 +31,8 @@ data class AppColors(
     val divider: Color,
     /** Progress bar track (#3A3A3A) */
     val progressTrack: Color,
+    /** Dark text/icon color (#A8A8A8) */
+    val searchDarkGrey: Color,
 )
 
 val DefaultAppColors = AppColors(
@@ -45,6 +47,7 @@ val DefaultAppColors = AppColors(
     iconGrey         = AppIconGrey,
     divider          = AppDivider,
     progressTrack    = AppProgressTrack,
+    searchDarkGrey   = AppSearchDarkGrey,
 )
 
 val LocalAppColors = staticCompositionLocalOf { DefaultAppColors }

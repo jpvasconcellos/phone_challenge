@@ -21,11 +21,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.keypadds.phonechallenge.R
 import com.keypadds.phonechallenge.domain.model.Song
 import com.keypadds.phonechallenge.ui.theme.PhoneChallengeTheme
 import com.keypadds.phonechallenge.ui.theme.appColors
@@ -80,7 +82,7 @@ fun SongOptionsSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.LibraryMusic,
+                    painter = painterResource(id = R.drawable.ic_setlist),
                     contentDescription = "View album",
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(28.dp)
