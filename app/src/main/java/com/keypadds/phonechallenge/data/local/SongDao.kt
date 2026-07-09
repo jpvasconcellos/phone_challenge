@@ -11,10 +11,10 @@ interface SongDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSongs(songs: List<SongEntity>)
 
-    @Query("SELECT * FROM songs WHERE query = :query ORDER BY trackNumber ASC")
+    @Query("SELECT * FROM songs WHERE `query` = :query ORDER BY trackNumber ASC")
     fun getSongsByQuery(query: String): Flow<List<SongEntity>>
 
-    @Query("DELETE FROM songs WHERE query = :query")
+    @Query("DELETE FROM songs WHERE `query` = :query")
     suspend fun deleteSongsByQuery(query: String)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
