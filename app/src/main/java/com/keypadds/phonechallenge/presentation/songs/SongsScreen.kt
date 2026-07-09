@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Snackbar
@@ -46,10 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.keypadds.phonechallenge.domain.model.Song
 import com.keypadds.phonechallenge.ui.theme.PhoneChallengeTheme
-
-private val BackgroundColor = Color(0xFF0D0D0D)
-private val SurfaceColor = Color(0xFF1A1A1A)
-private val AccentColor = Color(0xFF1DB954)
+import com.keypadds.phonechallenge.ui.theme.appColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +60,7 @@ fun SongsScreen(
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = MaterialTheme.appColors
     val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
     var query by remember { mutableStateOf("") }
@@ -76,7 +75,7 @@ fun SongsScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundColor)
+            .background(colors.backgroundDark)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -85,7 +84,7 @@ fun SongsScreen(
                 text = "Songs",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 12.dp)
             )
 
@@ -94,25 +93,25 @@ fun SongsScreen(
                 value = query,
                 onValueChange = { query = it },
                 placeholder = {
-                    Text("Search", color = Color(0xFF757575))
+                    Text("Search", color = colors.iconGrey)
                 },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search",
-                        tint = Color(0xFF757575)
+                        tint = colors.iconGrey
                     )
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = SurfaceColor,
-                    unfocusedContainerColor = SurfaceColor,
+                    focusedContainerColor = colors.surface,
+                    unfocusedContainerColor = colors.surface,
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent,
-                    cursorColor = AccentColor,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    cursorColor = colors.accent,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = {
@@ -142,7 +141,7 @@ fun SongsScreen(
                         HorizontalDivider(
                             modifier = Modifier.padding(start = 82.dp),
                             thickness = 0.5.dp,
-                            color = Color(0xFF222222)
+                            color = colors.divider
                         )
                     }
                 }
@@ -159,8 +158,8 @@ fun SongsScreen(
                             Button(
                                 onClick = onLoadMore,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = SurfaceColor,
-                                    contentColor = Color.White
+                                    containerColor = colors.surface,
+                                    contentColor = MaterialTheme.colorScheme.onSurface
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
@@ -178,7 +177,7 @@ fun SongsScreen(
                 modifier = Modifier
                     .size(48.dp)
                     .align(Alignment.Center),
-                color = AccentColor,
+                color = colors.accent,
                 strokeWidth = 3.dp
             )
         }
@@ -190,8 +189,8 @@ fun SongsScreen(
         ) { data ->
             Snackbar(
                 snackbarData = data,
-                containerColor = Color(0xFF323232),
-                contentColor = Color.White
+                containerColor = colors.surfaceLighter,
+                contentColor = MaterialTheme.colorScheme.onSurface
             )
         }
     }

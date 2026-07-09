@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.PhoneChallenge" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.PhoneChallenge" parent="Theme.AppCompat.NoActionBar">
+        <!-- Set the status bar to black to match the Compose theme -->
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+    </style>
 </resources>

@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.keypadds.phonechallenge.domain.model.Song
 import com.keypadds.phonechallenge.ui.theme.PhoneChallengeTheme
+import com.keypadds.phonechallenge.ui.theme.appColors
 
 @Composable
 fun SongListItem(
@@ -33,6 +33,8 @@ fun SongListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = MaterialTheme.appColors
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -48,7 +50,7 @@ fun SongListItem(
             modifier = Modifier
                 .size(52.dp)
                 .clip(RoundedCornerShape(6.dp))
-                .background(Color(0xFF2A2A2A))
+                .background(colors.surfaceLight)
         )
 
         Spacer(modifier = Modifier.width(14.dp))
@@ -60,7 +62,7 @@ fun SongListItem(
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium,
                     fontSize = 15.sp,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -69,7 +71,7 @@ fun SongListItem(
                 text = song.artistName,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 13.sp,
-                    color = Color(0xFF9E9E9E)
+                    color = colors.textSecondary
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -113,4 +115,3 @@ private fun SongListItemLongTitlePreview() {
         )
     }
 }
-
