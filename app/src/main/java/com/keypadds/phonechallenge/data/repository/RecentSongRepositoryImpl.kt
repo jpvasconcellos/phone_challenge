@@ -7,8 +7,9 @@ import com.keypadds.phonechallenge.domain.model.Song
 import com.keypadds.phonechallenge.domain.repository.RecentSongRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class RecentSongRepositoryImpl(
+class RecentSongRepositoryImpl @Inject constructor(
     private val dao: SongDao
 ) : RecentSongRepository {
 

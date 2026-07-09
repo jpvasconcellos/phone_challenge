@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import javax.inject.Inject
 
-class SongRepositoryImpl(
+class SongRepositoryImpl @Inject constructor(
     private val apiService: ItunesApiService,
     private val dao: SongDao
 ) : SongRepository {
