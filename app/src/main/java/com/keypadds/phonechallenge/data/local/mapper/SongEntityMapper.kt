@@ -7,6 +7,7 @@ fun SongEntity.toDomainModel(): Song {
     return Song(
         trackId = trackId,
         collectionId = collectionId,
+        collectionName = collectionName,
         query = query,
         trackName = trackName,
         artistName = artistName,

@@ -100,6 +100,7 @@ fun SongListItem(
 private val previewSong = Song(
     trackId = 1L,
     collectionId = 10L,
+    collectionName = "Album Title",
     query = "jack johnson",
     trackName = "Upside Down",
     artistName = "Jack Johnson",

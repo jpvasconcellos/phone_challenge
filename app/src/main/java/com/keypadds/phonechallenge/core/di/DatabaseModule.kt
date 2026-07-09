@@ -22,7 +22,7 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "phone_challenge.db"
-        ).build()
+        ).fallbackToDestructiveMigration(true).build()
 
     @Provides
     @Singleton

@@ -246,11 +246,11 @@ fun SongsScreen(
 // ── Previews ──────────────────────────────────────────────────────────────────
 
 private val previewSongs = listOf(
-    Song(1L, 10L, "jack", "Upside Down", "Jack Johnson", "", "", 1, 0L),
-    Song(2L, 10L, "jack", "Better Together", "Jack Johnson", "", "", 2, 0L),
-    Song(3L, 10L, "jack", "Banana Pancakes", "Jack Johnson", "", "", 3, 0L),
-    Song(4L, 10L, "jack", "Taylor", "Jack Johnson", "", "", 4, 0L),
-    Song(5L, 10L, "jack", "Sitting, Waiting, Wishing", "Jack Johnson", "", "", 5, 0L),
+    Song(1L, 10L, "Album Title", "jack", "Upside Down", "Jack Johnson", "", "", 1, 0L),
+    Song(2L, 10L, "Album Title", "jack", "Better Together", "Jack Johnson", "", "", 2, 0L),
+    Song(3L, 10L, "Album Title", "jack", "Banana Pancakes", "Jack Johnson", "", "", 3, 0L),
+    Song(4L, 10L, "Album Title", "jack", "Taylor", "Jack Johnson", "", "", 4, 0L),
+    Song(5L, 10L, "Album Title", "jack", "Sitting, Waiting, Wishing", "Jack Johnson", "", "", 5, 0L),
 )
 
 @Preview(showBackground = true, showSystemUi = true, name = "SongsScreen — populated")

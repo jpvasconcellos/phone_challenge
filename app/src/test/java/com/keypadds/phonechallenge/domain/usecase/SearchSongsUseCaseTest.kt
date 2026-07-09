@@ -41,7 +41,7 @@ class SearchSongsUseCaseTest {
     fun invoke_returns_flow_from_repository() = runTest {
         val songs = listOf(
             Song(
-                trackId = 1L, collectionId = 10L, query = "jack",
+                trackId = 1L, collectionId = 10L, collectionName = "Album Title", query = "jack",
                 trackName = "Upside Down", artistName = "Jack Johnson",
                 previewUrl = "", artworkUrl = "", trackNumber = 1, lastFetched = 1000L
             )

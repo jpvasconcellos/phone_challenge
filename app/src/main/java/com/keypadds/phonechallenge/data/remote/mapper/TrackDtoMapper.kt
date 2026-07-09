@@ -7,6 +7,7 @@ fun TrackDto.toSongEntity(query: String, lastFetched: Long): SongEntity {
     return SongEntity(
         trackId = trackId ?: 0L,
         collectionId = collectionId ?: 0L,
+        collectionName = collectionName ?: "",
         query = query,
         trackName = trackName ?: "",
         artistName = artistName ?: "",

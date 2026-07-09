@@ -36,8 +36,8 @@ class SongsViewModelTest {
     private lateinit var recentSongRepository: RecentSongRepository
     private lateinit var viewModel: SongsViewModel
 
-    private val song1 = Song(1L, 10L, "jack", "Upside Down", "Jack Johnson", "", "", 1, 1000L)
-    private val song2 = Song(2L, 10L, "jack", "Better Together", "Jack Johnson", "", "", 2, 1000L)
+    private val song1 = Song(1L, 10L, "Album Title", "jack", "Upside Down", "Jack Johnson", "", "", 1, 1000L)
+    private val song2 = Song(2L, 10L, "Album Title", "jack", "Better Together", "Jack Johnson", "", "", 2, 1000L)
 
     @Before
     fun setup() {

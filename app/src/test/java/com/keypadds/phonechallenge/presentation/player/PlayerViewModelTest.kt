@@ -35,9 +35,9 @@ class PlayerViewModelTest {
     private lateinit var songRepository: SongRepository
     private lateinit var savedStateHandle: SavedStateHandle
 
-    private val testSong = Song(1L, 10L, "jack", "Upside Down", "Jack Johnson", "http://preview.com", "", 1, 1000L)
-    private val testSong2 = Song(2L, 10L, "jack", "Banana Pancakes", "Jack Johnson", "url2", "", 2, 1000L)
-    private val testSong3 = Song(3L, 10L, "jack", "Better Together", "Jack Johnson", "url3", "", 3, 1000L)
+    private val testSong = Song(1L, 10L, "Album Title", "jack", "Upside Down", "Jack Johnson", "http://preview.com", "", 1, 1000L)
+    private val testSong2 = Song(2L, 10L, "Album Title", "jack", "Banana Pancakes", "Jack Johnson", "url2", "", 2, 1000L)
+    private val testSong3 = Song(3L, 10L, "Album Title", "jack", "Better Together", "Jack Johnson", "url3", "", 3, 1000L)
     private val recentSongs = listOf(testSong3, testSong2, testSong)
 
     @Before

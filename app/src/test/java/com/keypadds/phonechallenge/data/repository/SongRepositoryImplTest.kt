@@ -42,7 +42,7 @@ class SongRepositoryImplTest {
     @Test
     fun search_returns_cached_results_first() = runTest(testDispatcher) {
         val cachedEntity = SongEntity(
-            trackId = 1L, collectionId = 2L, query = "jack", trackName = "Cached", 
+            trackId = 1L, collectionId = 2L, collectionName = "Album Title", query = "jack", trackName = "Cached", 
             artistName = "Artist", previewUrl = "", artworkUrl = "", trackNumber = 1, lastFetched = 1L
         )
         every { dao.getSongsByQuery("jack") } returns flowOf(listOf(cachedEntity))
@@ -59,7 +59,7 @@ class SongRepositoryImplTest {
     @Test
     fun search_refreshes_cache_after_network_success() = runTest(testDispatcher) {
         val dto = TrackDto(
-            trackId = 2L, collectionId = 2L, trackName = "Network", 
+            trackId = 2L, collectionId = 2L, collectionName = "Album Title", trackName = "Network", 
             artistName = "Artist", previewUrl = "", artworkUrl100 = "", trackNumber = 1, wrapperType = "track"
         )
         coEvery { apiService.search(term = "jack", offset = 0) } returns ItunesResponseDto(1, listOf(dto))
@@ -83,14 +83,14 @@ class SongRepositoryImplTest {
     @Test
     fun load_next_page_appends_results_with_correct_offset() = runTest(testDispatcher) {
         val dto1 = TrackDto(
-            trackId = 1L, collectionId = 2L, trackName = "Network1", 
+            trackId = 1L, collectionId = 2L, collectionName = "Album Title", trackName = "Network1", 
             artistName = "Artist", previewUrl = "", artworkUrl100 = "", trackNumber = 1, wrapperType = "track"
         )
         coEvery { apiService.search(term = "jack", offset = 0) } returns ItunesResponseDto(1, listOf(dto1))
         repository.refreshSearch("jack")
 
         val dto2 = TrackDto(
-            trackId = 2L, collectionId = 2L, trackName = "Network2", 
+            trackId = 2L, collectionId = 2L, collectionName = "Album Title", trackName = "Network2", 
             artistName = "Artist", previewUrl = "", artworkUrl100 = "", trackNumber = 2, wrapperType = "track"
         )
         coEvery { apiService.search(term = "jack", offset = 1) } returns ItunesResponseDto(1, listOf(dto2))

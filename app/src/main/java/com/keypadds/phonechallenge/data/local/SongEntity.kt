@@ -8,6 +8,7 @@ data class SongEntity(
     @PrimaryKey
     val trackId: Long,
     val collectionId: Long,
+    val collectionName: String,
     val query: String,
     val trackName: String,
     val artistName: String,

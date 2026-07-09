@@ -27,8 +27,8 @@ class AlbumViewModelTest {
     private lateinit var getAlbumSongsUseCase: GetAlbumSongsUseCase
     private lateinit var savedStateHandle: SavedStateHandle
 
-    private val song1 = Song(1L, 10L, "jack", "Track 1", "Artist", "", "", 1, 1000L)
-    private val song2 = Song(2L, 10L, "jack", "Track 2", "Artist", "", "", 2, 1000L)
+    private val song1 = Song(1L, 10L, "Album Title", "jack", "Track 1", "Artist", "", "", 1, 1000L)
+    private val song2 = Song(2L, 10L, "Album Title", "jack", "Track 2", "Artist", "", "", 2, 1000L)
 
     @Before
     fun setup() {

@@ -14,6 +14,7 @@ class TrackDtoMapperTest {
         val dto = TrackDto(
             trackId = 1L,
             collectionId = 2L,
+            collectionName = "Album Title",
             trackName = "Test Track",
             artistName = "Test Artist",
             previewUrl = "preview_url",
@@ -39,7 +40,7 @@ class TrackDtoMapperTest {
     fun maps_song_entity_to_domain_song_correctly() {
         val entity = SongEntity(
             trackId = 1L,
-            collectionId = 2L,
+            collectionId = 2L, collectionName = "Album Title",
             query = "test",
             trackName = "Test Track",
             artistName = "Test Artist",

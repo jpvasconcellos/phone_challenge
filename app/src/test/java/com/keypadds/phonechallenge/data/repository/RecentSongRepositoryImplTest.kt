@@ -29,11 +29,11 @@ class RecentSongRepositoryImplTest {
     @Test
     fun get_recent_songs_emits_joined_songs_ordered_by_played_at() = runTest {
         val entity1 = SongEntity(
-            trackId = 1L, collectionId = 10L, query = "jack", trackName = "Song A",
+            trackId = 1L, collectionId = 10L, collectionName = "Album Title", query = "jack", trackName = "Song A",
             artistName = "Artist", previewUrl = "", artworkUrl = "", trackNumber = 1, lastFetched = 1000L
         )
         val entity2 = SongEntity(
-            trackId = 2L, collectionId = 10L, query = "jack", trackName = "Song B",
+            trackId = 2L, collectionId = 10L, collectionName = "Album Title", query = "jack", trackName = "Song B",
             artistName = "Artist", previewUrl = "", artworkUrl = "", trackNumber = 2, lastFetched = 1000L
         )
         // DAO returns entities pre-ordered by playedAt DESC (DB handles ordering)

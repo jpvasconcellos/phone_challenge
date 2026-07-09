@@ -340,7 +340,7 @@ private fun Long.toTimeString(): String {
 // ── Previews ──────────────────────────────────────────────────────────────────
 
 private val previewSong = Song(
-    trackId = 1L, collectionId = 10L, query = "daft punk",
+    trackId = 1L, collectionId = 10L, collectionName = "Album Title", query = "daft punk",
     trackName = "Get Lucky", artistName = "Daft Punk feat. Pharrell Williams",
     previewUrl = "", artworkUrl = "", trackNumber = 1, lastFetched = 0L
 )

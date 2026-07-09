@@ -21,12 +21,12 @@ class GetRecentAndAlbumUseCaseTest {
     private lateinit var getAlbumSongsUseCase: GetAlbumSongsUseCase
 
     private val song1 = Song(
-        trackId = 1L, collectionId = 10L, query = "jack",
+        trackId = 1L, collectionId = 10L, collectionName = "Album Title", query = "jack",
         trackName = "Song A", artistName = "Artist", previewUrl = "",
         artworkUrl = "", trackNumber = 1, lastFetched = 1000L
     )
     private val song2 = Song(
-        trackId = 2L, collectionId = 10L, query = "jack",
+        trackId = 2L, collectionId = 10L, collectionName = "Album Title", query = "jack",
         trackName = "Song B", artistName = "Artist", previewUrl = "",
         artworkUrl = "", trackNumber = 2, lastFetched = 1000L
     )

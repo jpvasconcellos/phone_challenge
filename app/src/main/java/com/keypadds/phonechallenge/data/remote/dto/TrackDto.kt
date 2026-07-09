@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonClass
 data class TrackDto(
     @param:Json(name = "trackId") val trackId: Long?,
     @param:Json(name = "collectionId") val collectionId: Long?,
+    @param:Json(name = "collectionName") val collectionName: String?,
     @param:Json(name = "trackName") val trackName: String?,
     @param:Json(name = "artistName") val artistName: String?,
     @param:Json(name = "previewUrl") val previewUrl: String?,

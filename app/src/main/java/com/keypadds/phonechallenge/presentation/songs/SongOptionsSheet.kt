@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LibraryMusic
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -109,6 +107,7 @@ private fun SongOptionsSheetPreview() {
             song = Song(
                 trackId = 1L,
                 collectionId = 10L,
+                collectionName = "Album Title",
                 query = "jack",
                 trackName = "Song name",
                 artistName = "Artist name",
