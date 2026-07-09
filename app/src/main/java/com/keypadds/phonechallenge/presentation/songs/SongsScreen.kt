@@ -57,6 +57,7 @@ fun SongsScreen(
     error: String?,
     onSearch: (String) -> Unit,
     onSongClick: (Song) -> Unit,
+    onAlbumClick: (Song) -> Unit,
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -135,7 +136,8 @@ fun SongsScreen(
                 itemsIndexed(songs, key = { _, song -> song.trackId }) { index, song ->
                     SongListItem(
                         song = song,
-                        onClick = { onSongClick(song) }
+                        onClick = { onSongClick(song) },
+                        onArtworkClick = { onAlbumClick(song) }
                     )
                     if (index < songs.lastIndex) {
                         HorizontalDivider(
@@ -216,6 +218,7 @@ private fun SongsScreenPopulatedPreview() {
             error = null,
             onSearch = {},
             onSongClick = {},
+            onAlbumClick = {},
             onLoadMore = {}
         )
     }
@@ -231,6 +234,7 @@ private fun SongsScreenLoadingPreview() {
             error = null,
             onSearch = {},
             onSongClick = {},
+            onAlbumClick = {},
             onLoadMore = {}
         )
     }
@@ -246,6 +250,7 @@ private fun SongsScreenErrorPreview() {
             error = "Network error. Showing cached results.",
             onSearch = {},
             onSongClick = {},
+            onAlbumClick = {},
             onLoadMore = {}
         )
     }

@@ -51,6 +51,9 @@
         <argument
             android:name="collectionId"
             app:argType="long" />
+        <action
+            android:id="@+id/action_album_to_player"
+            app:destination="@id/playerFragment" />
     </fragment>
 
 </navigation>

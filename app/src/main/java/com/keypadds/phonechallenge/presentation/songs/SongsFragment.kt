@@ -44,6 +44,13 @@ class SongsFragment : Fragment() {
                             )
                         findNavController().navigate(action)
                     },
+                    onAlbumClick = { song ->
+                        val action = SongsFragmentDirections
+                            .actionSongsToAlbum(
+                                collectionId = song.collectionId
+                            )
+                        findNavController().navigate(action)
+                    },
                     onLoadMore = { viewModel.loadNextPage() }
                 )
             }

@@ -31,7 +31,8 @@ import com.keypadds.phonechallenge.ui.theme.appColors
 fun SongListItem(
     song: Song,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onArtworkClick: (() -> Unit)? = null
 ) {
     val colors = MaterialTheme.appColors
 
@@ -51,6 +52,10 @@ fun SongListItem(
                 .size(52.dp)
                 .clip(RoundedCornerShape(6.dp))
                 .background(colors.surfaceLight)
+                .then(
+                    if (onArtworkClick != null) Modifier.clickable(onClick = onArtworkClick)
+                    else Modifier
+                )
         )
 
         Spacer(modifier = Modifier.width(14.dp))
