@@ -73,6 +73,10 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.room.runtime)
 
+    // Media3 / ExoPlayer
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
