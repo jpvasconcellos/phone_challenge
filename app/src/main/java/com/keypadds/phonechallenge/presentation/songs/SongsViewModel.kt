@@ -66,7 +66,14 @@ class SongsViewModel @Inject constructor(
     fun loadNextPage() {
         if (currentQuery.isBlank()) return
         viewModelScope.launch {
-            songRepository.loadNextPage(currentQuery)
+            _isLoading.value = true
+            try {
+                songRepository.loadNextPage(currentQuery)
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 }

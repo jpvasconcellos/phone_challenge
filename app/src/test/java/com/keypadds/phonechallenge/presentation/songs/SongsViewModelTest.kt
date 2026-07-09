@@ -2,13 +2,16 @@ package com.keypadds.phonechallenge.presentation.songs
 
 import app.cash.turbine.test
 import com.keypadds.phonechallenge.domain.model.Song
+import com.keypadds.phonechallenge.domain.repository.RecentSongRepository
 import com.keypadds.phonechallenge.domain.repository.SongRepository
 import com.keypadds.phonechallenge.domain.usecase.SearchSongsUseCase
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -30,6 +33,7 @@ class SongsViewModelTest {
 
     private lateinit var searchSongsUseCase: SearchSongsUseCase
     private lateinit var songRepository: SongRepository
+    private lateinit var recentSongRepository: RecentSongRepository
     private lateinit var viewModel: SongsViewModel
 
     private val song1 = Song(1L, 10L, "jack", "Upside Down", "Jack Johnson", "", "", 1, 1000L)
@@ -40,7 +44,11 @@ class SongsViewModelTest {
         Dispatchers.setMain(testDispatcher)
         searchSongsUseCase = mockk()
         songRepository = mockk(relaxed = true)
-        viewModel = SongsViewModel(searchSongsUseCase, songRepository)
+        recentSongRepository = mockk(relaxed = true)
+        
+        every { recentSongRepository.getRecentSongs() } returns flowOf(emptyList())
+        
+        viewModel = SongsViewModel(searchSongsUseCase, songRepository, recentSongRepository)
     }
 
     @After
@@ -95,5 +103,32 @@ class SongsViewModelTest {
         advanceUntilIdle()
 
         coVerify { songRepository.loadNextPage("jack") }
+    }
+
+    @Test
+    fun search_emits_error_message_on_network_failure() = runTest(testDispatcher) {
+        every { searchSongsUseCase("jack") } returns flow { throw Exception("Network error") }
+
+        viewModel.search("jack")
+        advanceUntilIdle()
+
+        assertEquals("Network error", viewModel.error.value)
+        assertFalse(viewModel.isLoading.value)
+        assertEquals(emptyList<Song>(), viewModel.songs.value)
+    }
+
+    @Test
+    fun load_next_page_does_not_crash_on_network_error() = runTest(testDispatcher) {
+        every { searchSongsUseCase("jack") } returns flowOf(listOf(song1))
+        coEvery { songRepository.loadNextPage("jack") } throws Exception("Pagination error")
+
+        viewModel.search("jack")
+        advanceUntilIdle()
+
+        viewModel.loadNextPage()
+        advanceUntilIdle()
+
+        assertEquals("Pagination error", viewModel.error.value)
+        assertFalse(viewModel.isLoading.value)
     }
 }

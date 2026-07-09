@@ -131,46 +131,77 @@ fun SongsScreen(
 
             val displaySongs = if (query.isBlank()) recentSongs else songs
 
-            // Song list
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                itemsIndexed(displaySongs, key = { _, song -> song.trackId }) { index, song ->
-                    SongListItem(
-                        song = song,
-                        onClick = { onSongClick(song) },
-                        onOptionsClick = { onOptionsClick(song) }
-                    )
-                    if (index < displaySongs.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 82.dp),
-                            thickness = 0.5.dp,
-                            color = colors.divider
+            if (displaySongs.isEmpty() && !isLoading) {
+                if (error != null) {
+                    Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "Oops! Something went wrong:\n$error",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(32.dp),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
+                } else if (query.isNotBlank()) {
+                    Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "No songs found for \"$query\"",
+                            color = colors.textTertiary,
+                            modifier = Modifier.padding(32.dp),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
+                } else {
+                    Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "Search for a song to get started",
+                            color = colors.textTertiary,
+                            modifier = Modifier.padding(32.dp),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                 }
+            } else {
+                // Song list
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    itemsIndexed(displaySongs, key = { _, song -> song.trackId }) { index, song ->
+                        SongListItem(
+                            song = song,
+                            onClick = { onSongClick(song) },
+                            onOptionsClick = { onOptionsClick(song) }
+                        )
+                        if (index < displaySongs.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 82.dp),
+                                thickness = 0.5.dp,
+                                color = colors.divider
+                            )
+                        }
+                    }
 
-                // Load more button at bottom (only for search results)
-                if (query.isNotBlank() && displaySongs.isNotEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Button(
-                                onClick = onLoadMore,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = colors.surface,
-                                    contentColor = MaterialTheme.colorScheme.onSurface
-                                ),
-                                shape = RoundedCornerShape(8.dp)
+                    // Load more button at bottom (only for search results)
+                    if (query.isNotBlank() && displaySongs.isNotEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text("Load more")
+                                Button(
+                                    onClick = onLoadMore,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = colors.surface,
+                                        contentColor = MaterialTheme.colorScheme.onSurface
+                                    ),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Load more")
+                                }
                             }
                         }
                     }
