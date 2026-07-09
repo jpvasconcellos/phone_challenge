@@ -33,6 +33,7 @@ class PlayerViewModel @Inject constructor(
     private var recentSongsList: List<Song> = emptyList()
 
     val playbackState: StateFlow<PlaybackState> = musicPlayer.playbackState
+    val currentPosition: StateFlow<Long> = musicPlayer.currentPosition
 
     init {
         // Observe playback state to always show the currently playing song
@@ -83,15 +84,14 @@ class PlayerViewModel @Inject constructor(
         if (currentTrackId == -1L || recentSongsList.isEmpty()) return
 
         val currentIndex = recentSongsList.indexOfFirst { it.trackId == currentTrackId }
-        if (currentIndex != -1 && currentIndex > 0) {
-            // Play the newer song in history
-            val nextSong = recentSongsList[currentIndex - 1]
+        if (currentIndex != -1) {
+            // Next goes down the list (older songs). Loop to 0 if at the end.
+            val nextIndex = if (currentIndex < recentSongsList.lastIndex) currentIndex + 1 else 0
+            val nextSong = recentSongsList[nextIndex]
             musicPlayer.play(nextSong.previewUrl, nextSong.trackId)
-            viewModelScope.launch { recentSongRepository.markAsPlayed(nextSong.trackId) }
-        } else if (currentIndex == -1 && recentSongsList.isNotEmpty()) {
+        } else if (recentSongsList.isNotEmpty()) {
             val nextSong = recentSongsList.first()
             musicPlayer.play(nextSong.previewUrl, nextSong.trackId)
-            viewModelScope.launch { recentSongRepository.markAsPlayed(nextSong.trackId) }
         }
     }
 
@@ -100,15 +100,14 @@ class PlayerViewModel @Inject constructor(
         if (currentTrackId == -1L || recentSongsList.isEmpty()) return
 
         val currentIndex = recentSongsList.indexOfFirst { it.trackId == currentTrackId }
-        if (currentIndex != -1 && currentIndex < recentSongsList.lastIndex) {
-            // Play the older song in history
-            val prevSong = recentSongsList[currentIndex + 1]
+        if (currentIndex != -1) {
+            // Previous goes up the list (newer songs). Loop to end if at 0.
+            val prevIndex = if (currentIndex > 0) currentIndex - 1 else recentSongsList.lastIndex
+            val prevSong = recentSongsList[prevIndex]
             musicPlayer.play(prevSong.previewUrl, prevSong.trackId)
-            viewModelScope.launch { recentSongRepository.markAsPlayed(prevSong.trackId) }
-        } else if (currentIndex == -1 && recentSongsList.isNotEmpty()) {
+        } else if (recentSongsList.isNotEmpty()) {
             val prevSong = recentSongsList.first()
             musicPlayer.play(prevSong.previewUrl, prevSong.trackId)
-            viewModelScope.launch { recentSongRepository.markAsPlayed(prevSong.trackId) }
         }
     }
 

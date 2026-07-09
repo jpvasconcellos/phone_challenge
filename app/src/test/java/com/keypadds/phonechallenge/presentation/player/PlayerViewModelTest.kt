@@ -113,7 +113,7 @@ class PlayerViewModelTest {
     }
 
     @Test
-    fun skipNext_plays_newer_song_in_history() = runTest(testDispatcher) {
+    fun skipNext_plays_next_song_in_list() = runTest(testDispatcher) {
         every { musicPlayer.playbackState } returns MutableStateFlow(PlaybackState(trackId = 2L)) // testSong2 (index 1)
         val viewModel = PlayerViewModel(musicPlayer, recentSongRepository, songRepository, savedStateHandle)
         advanceUntilIdle()
@@ -121,13 +121,12 @@ class PlayerViewModelTest {
         viewModel.skipNext()
         advanceUntilIdle()
 
-        // Index 1 minus 1 = 0 (testSong3)
-        verify { musicPlayer.play("url3", 3L) }
-        coVerify { recentSongRepository.markAsPlayed(3L) }
+        // Index 1 plus 1 = 2 (testSong)
+        verify { musicPlayer.play("http://preview.com", 1L) }
     }
 
     @Test
-    fun skipPrevious_plays_older_song_in_history() = runTest(testDispatcher) {
+    fun skipPrevious_plays_previous_song_in_list() = runTest(testDispatcher) {
         every { musicPlayer.playbackState } returns MutableStateFlow(PlaybackState(trackId = 2L)) // testSong2 (index 1)
         val viewModel = PlayerViewModel(musicPlayer, recentSongRepository, songRepository, savedStateHandle)
         advanceUntilIdle()
@@ -135,8 +134,7 @@ class PlayerViewModelTest {
         viewModel.skipPrevious()
         advanceUntilIdle()
 
-        // Index 1 plus 1 = 2 (testSong)
-        verify { musicPlayer.play("http://preview.com", 1L) }
-        coVerify { recentSongRepository.markAsPlayed(1L) }
+        // Index 1 minus 1 = 0 (testSong3)
+        verify { musicPlayer.play("url3", 3L) }
     }
 }

@@ -25,7 +25,7 @@ class AlbumViewModel @Inject constructor(
     val songs: StateFlow<List<Song>> = _songs.asStateFlow()
 
     init {
-        if (collectionId != -1L) {
+        if (collectionId != -1L && collectionId != 0L) {
             viewModelScope.launch {
                 getAlbumSongsUseCase(collectionId).collectLatest { loadedSongs ->
                     _songs.value = loadedSongs

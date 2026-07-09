@@ -18,7 +18,6 @@ class MusicPlayerSmokeTest {
         val state = PlaybackState()
         assertEquals(-1L, state.trackId)
         assertFalse(state.isPlaying)
-        assertEquals(0L, state.currentPositionMs)
         assertEquals(0L, state.durationMs)
         assertFalse(state.isLooping)
     }
@@ -31,7 +30,6 @@ class MusicPlayerSmokeTest {
         assertEquals(42L, playing.trackId)
         assertEquals(true, playing.isPlaying)
         assertEquals(30_000L, playing.durationMs)
-        assertEquals(0L, playing.currentPositionMs)
         assertEquals(true, playing.isLooping)
     }
 

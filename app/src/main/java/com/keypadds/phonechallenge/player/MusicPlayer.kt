@@ -9,13 +9,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
@@ -28,9 +28,9 @@ class MusicPlayer @Inject constructor(
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     _playbackState.value = _playbackState.value.copy(
                         isPlaying = isPlaying,
-                        currentPositionMs = player.currentPosition,
                         durationMs = player.duration.coerceAtLeast(0L)
                     )
+                    _currentPosition.value = player.currentPosition
                     if (isPlaying) {
                         startProgressPolling()
                     } else {
@@ -41,15 +41,15 @@ class MusicPlayer @Inject constructor(
                 override fun onPlaybackStateChanged(playbackState: Int) {
                     if (playbackState == Player.STATE_READY) {
                         _playbackState.value = _playbackState.value.copy(
-                            durationMs = player.duration.coerceAtLeast(0L),
-                            currentPositionMs = player.currentPosition
+                            durationMs = player.duration.coerceAtLeast(0L)
                         )
+                        _currentPosition.value = player.currentPosition
                     }
                     if (playbackState == Player.STATE_ENDED) {
                         _playbackState.value = _playbackState.value.copy(
-                            isPlaying = false,
-                            currentPositionMs = 0L
+                            isPlaying = false
                         )
+                        _currentPosition.value = 0L
                         stopProgressPolling()
                     }
                 }
@@ -68,6 +68,9 @@ class MusicPlayer @Inject constructor(
 
     private val _playbackState = MutableStateFlow(PlaybackState())
     val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
+
+    private val _currentPosition = MutableStateFlow(0L)
+    val currentPosition: StateFlow<Long> = _currentPosition.asStateFlow()
 
     /**
      * Start playback of the given URL, updating the current trackId.
@@ -109,9 +112,7 @@ class MusicPlayer @Inject constructor(
         progressJob?.cancel()
         progressJob = playerScope.launch {
             while (true) {
-                _playbackState.value = _playbackState.value.copy(
-                    currentPositionMs = exoPlayer.currentPosition
-                )
+                _currentPosition.value = exoPlayer.currentPosition
                 delay(100L.milliseconds) // Poll every 100ms
             }
         }
@@ -129,5 +130,6 @@ class MusicPlayer @Inject constructor(
     fun release() {
         exoPlayer.release()
         _playbackState.value = PlaybackState()
+        _currentPosition.value = 0L
     }
 }

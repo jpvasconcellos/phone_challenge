@@ -58,8 +58,10 @@ import com.keypadds.phonechallenge.ui.theme.appColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
+    modifier: Modifier = Modifier,
     song: Song?,
     playbackState: PlaybackState,
+    currentPositionProvider: () -> Long,
     isLooping: Boolean = false,
     onBack: () -> Unit,
     onPlay: () -> Unit,
@@ -68,14 +70,11 @@ fun PlayerScreen(
     onSkipNext: () -> Unit,
     onToggleLoop: () -> Unit = {},
     onAlbumClick: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.appColors
     var showOptionsSheet by remember { mutableStateOf(false) }
 
-    val progress = if (playbackState.durationMs > 0)
-        (playbackState.currentPositionMs.toFloat() / playbackState.durationMs).coerceIn(0f, 1f)
-    else 0f
+
 
     Column(
         modifier = modifier
@@ -164,60 +163,11 @@ fun PlayerScreen(
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        // Seekbar: 4dp track, 16dp handle, no gap
-        Slider(
-            value = progress,
-            onValueChange = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.onBackground,
-                activeTrackColor = MaterialTheme.colorScheme.onBackground,
-                inactiveTrackColor = colors.progressTrack
-            ),
-            thumb = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_player_handle),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(16.dp)
-                )
-            },
-            track = { sliderState ->
-                SliderDefaults.Track(
-                    sliderState = sliderState,
-                    modifier = Modifier.height(4.dp),
-                    colors = SliderDefaults.colors(
-                        activeTrackColor = MaterialTheme.colorScheme.onBackground,
-                        inactiveTrackColor = colors.progressTrack
-                    ),
-                    drawStopIndicator = {},
-                    thumbTrackGapSize = 0.dp,
-                    trackInsideCornerSize = 2.dp
-                )
-            }
+        PlayerProgressSection(
+            currentPositionProvider = currentPositionProvider,
+            durationMs = playbackState.durationMs,
+            colors = colors
         )
-
-        // Time labels
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp)
-                .padding(top = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = playbackState.currentPositionMs.toTimeString(),
-                color = colors.textTertiary,
-                fontSize = 12.sp
-            )
-            Text(
-                text = "-${(playbackState.durationMs - playbackState.currentPositionMs).coerceAtLeast(0).toTimeString()}",
-                color = colors.textTertiary,
-                fontSize = 12.sp
-            )
-        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -312,6 +262,74 @@ fun PlayerScreen(
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PlayerProgressSection(
+    currentPositionProvider: () -> Long,
+    durationMs: Long,
+    colors: com.keypadds.phonechallenge.ui.theme.AppColors
+) {
+    val currentPositionMs = currentPositionProvider()
+    val progress = if (durationMs > 0)
+        (currentPositionMs.toFloat() / durationMs).coerceIn(0f, 1f)
+    else 0f
+
+    // Seekbar: 4dp track, 16dp handle, no gap
+    Slider(
+        value = progress,
+        onValueChange = {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
+        colors = SliderDefaults.colors(
+            thumbColor = MaterialTheme.colorScheme.onBackground,
+            activeTrackColor = MaterialTheme.colorScheme.onBackground,
+            inactiveTrackColor = colors.progressTrack
+        ),
+        thumb = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_player_handle),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.size(16.dp)
+            )
+        },
+        track = { sliderState ->
+            SliderDefaults.Track(
+                sliderState = sliderState,
+                modifier = Modifier.height(4.dp),
+                colors = SliderDefaults.colors(
+                    activeTrackColor = MaterialTheme.colorScheme.onBackground,
+                    inactiveTrackColor = colors.progressTrack
+                ),
+                drawStopIndicator = {},
+                thumbTrackGapSize = 0.dp,
+                trackInsideCornerSize = 2.dp
+            )
+        }
+    )
+
+    // Time labels
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp)
+            .padding(top = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = currentPositionMs.toTimeString(),
+            color = colors.textTertiary,
+            fontSize = 12.sp
+        )
+        Text(
+            text = "-${(durationMs - currentPositionMs).coerceAtLeast(0).toTimeString()}",
+            color = colors.textTertiary,
+            fontSize = 12.sp
+        )
+    }
+}
+
 private fun Long.toTimeString(): String {
     val totalSeconds = this / 1000
     val minutes = totalSeconds / 60
@@ -333,7 +351,8 @@ private fun PlayerScreenPlayingPreview() {
     PhoneChallengeTheme {
         PlayerScreen(
             song = previewSong,
-            playbackState = PlaybackState(trackId = 1L, isPlaying = true, currentPositionMs = 86_000L, durationMs = 174_000L),
+            playbackState = PlaybackState(trackId = 1L, isPlaying = true, durationMs = 174_000L),
+            currentPositionProvider = { 86_000L },
             onBack = {},
             onPlay = {},
             onPause = {},
@@ -350,7 +369,8 @@ private fun PlayerScreenPausedPreview() {
     PhoneChallengeTheme {
         PlayerScreen(
             song = previewSong,
-            playbackState = PlaybackState(trackId = 1L, isPlaying = false, currentPositionMs = 20_000L, durationMs = 174_000L),
+            playbackState = PlaybackState(trackId = 1L, isPlaying = false, durationMs = 174_000L),
+            currentPositionProvider = { 20_000L },
             onBack = {},
             onPlay = {},
             onPause = {},
@@ -368,6 +388,7 @@ private fun PlayerScreenLoadingPreview() {
         PlayerScreen(
             song = null,
             playbackState = PlaybackState(),
+            currentPositionProvider = { 0L },
             onBack = {},
             onPlay = {},
             onPause = {},

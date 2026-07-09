@@ -28,11 +28,13 @@ class PlayerFragment : Fragment() {
         setContent {
             val song by viewModel.song.collectAsState()
             val playbackState by viewModel.playbackState.collectAsState()
+            val currentPositionState = viewModel.currentPosition.collectAsState()
 
             PhoneChallengeTheme {
                 PlayerScreen(
                     song = song,
                     playbackState = playbackState,
+                    currentPositionProvider = { currentPositionState.value },
                     onBack = { findNavController().popBackStack() },
                     onPlay = { viewModel.resume() },
                     onPause = { viewModel.pause() },

@@ -70,7 +70,7 @@ fun AlbumScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No songs found for this album.",
+                    text = "No album info found.",
                     color = colors.textSecondary,
                     fontSize = 16.sp
                 )
