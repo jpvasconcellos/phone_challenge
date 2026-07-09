@@ -44,7 +44,6 @@ fun SongOptionsSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         containerColor = colors.surfaceLight,
-        // Using default drag handle which matches the screenshot
     ) {
         Column(
             modifier = Modifier

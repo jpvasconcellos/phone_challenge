@@ -75,10 +75,6 @@ fun AlbumScreen(
             }
         } else {
             Column(modifier = Modifier.padding(paddingValues)) {
-                // Header with Album artwork and Title could go here, 
-                // but since we only have track artworks and they might be identical,
-                // we just list the tracks. Let's just use a simple list.
-                
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 16.dp)

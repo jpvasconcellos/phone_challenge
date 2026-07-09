@@ -2,15 +2,10 @@
 <resources>
 
     <style name="Theme.PhoneChallenge" parent="Theme.AppCompat.NoActionBar">
-        <!-- Set the status bar to black to match the Compose theme -->
         <item name="android:statusBarColor">#000000</item>
         <item name="android:navigationBarColor">#000000</item>
     </style>
 
-    <!-- Splash theme — shown during cold start via the SplashScreen API.
-         NOTE: windowSplashScreenBackground only accepts COLOR values (not drawables).
-         We keep it black and dismiss it instantly; the Compose SplashScreen
-         (SplashFragment) is the real splash with the gradient and logo. -->
     <style name="Theme.PhoneChallenge.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#000000</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/empty_icon</item>

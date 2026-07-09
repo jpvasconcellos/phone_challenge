@@ -38,7 +38,6 @@ fun SplashScreen(
                             0.3357f to Color(0xFF000000),
                             1.0f    to Color(0xFF0086A0)
                         ),
-                        // bottom-left (0, height) → top-right (width, 0)
                         start = Offset(0f, size.height),
                         end   = Offset(size.width, 0f)
                     )
