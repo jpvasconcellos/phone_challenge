@@ -28,12 +28,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Row
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.keypadds.phonechallenge.domain.model.Song
@@ -89,18 +92,22 @@ fun AlbumScreen(
             }
         } else {
             val firstSong = songs.first()
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                item {
-                    Column(
+            val configuration = LocalConfiguration.current
+            val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+            if (isLandscape) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Left Column
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .weight(1f)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
@@ -110,35 +117,105 @@ fun AlbumScreen(
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(200.dp)
+                                .size(240.dp)
                                 .clip(RoundedCornerShape(16.dp))
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = firstSong.collectionName.ifBlank { "Unknown Album" },
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = firstSong.artistName,
-                            color = colors.textSecondary,
-                            fontSize = 16.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    // Right Column
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 16.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(
+                                    text = firstSong.collectionName.ifBlank { "Unknown Album" },
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = firstSong.artistName,
+                                    color = colors.textSecondary,
+                                    fontSize = 16.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        }
+
+                        itemsIndexed(songs, key = { _, song -> song.trackId }) { _, song ->
+                            SongListItem(
+                                song = song,
+                                onClick = { onSongClick(song) },
+                            )
+                        }
                     }
                 }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(firstSong.artworkUrl.replace("100x100bb", "600x600bb"))
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(200.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(
+                                text = firstSong.collectionName.ifBlank { "Unknown Album" },
+                                color = MaterialTheme.colorScheme.onBackground,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = firstSong.artistName,
+                                color = colors.textSecondary,
+                                fontSize = 16.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
 
-                itemsIndexed(songs, key = { _, song -> song.trackId }) { _, song ->
-                    SongListItem(
-                        song = song,
-                        onClick = { onSongClick(song) },
-                    )
+                    itemsIndexed(songs, key = { _, song -> song.trackId }) { _, song ->
+                        SongListItem(
+                            song = song,
+                            onClick = { onSongClick(song) },
+                        )
+                    }
                 }
             }
         }
