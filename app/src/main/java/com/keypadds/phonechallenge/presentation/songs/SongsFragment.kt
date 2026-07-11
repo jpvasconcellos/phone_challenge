@@ -47,7 +47,6 @@ class SongsFragment : Fragment() {
                     error = error,
                     onSearch = { query -> viewModel.search(query) },
                     onSongClick = { song ->
-                        viewModel.clearSearchCache()
                         val action = SongsFragmentDirections
                             .actionSongsToPlayer(
                                 trackId = song.trackId,
